@@ -9,10 +9,14 @@ describe("Rule: check_text_elements", () => {
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <PROGDIR>
-    <NAME>ZFOOBAR</NAME>
-    <SUBC>1</SUBC>
-    <RLOAD>E</RLOAD>
+    <NAME>/ABC/SAPLDEF_FG</NAME>
+    <DBAPL>S</DBAPL>
+    <DBNA>D$</DBNA>
+    <SUBC>F</SUBC>
+    <APPL>S</APPL>
+    <RLOAD>D</RLOAD>
     <FIXPT>X</FIXPT>
+    <LDBNAME>D$S</LDBNAME>
     <UCCHECK>X</UCCHECK>
    </PROGDIR>
    <TPOOL>
@@ -34,129 +38,18 @@ describe("Rule: check_text_elements", () => {
      <ENTRY>&apos;Editor Lock&apos; is set.</ENTRY>
      <LENGTH>42</LENGTH>
     </item>
-    <item>
-     <ID>R</ID>
-     <ENTRY>Program ZFOOBAR</ENTRY>
-     <LENGTH>28</LENGTH>
-    </item>
    </TPOOL>
   </asx:values>
  </asx:abap>
 </abapGit>`;
 
   it("test 1", () => {
-    const abap = "WRITE hello.";
+    const abap = "WRITE: / text-001, 'hello world 1'(001).";
     const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
+    reg.addFile(new MemoryFile("#abc#def_fg.fugr.#abc#ldef_fgp01.abap", abap));
+    reg.addFile(new MemoryFile("#abc#def_fg.fugr.#abc#sapldef_fg.xml", xml));
     reg.parse();
     const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
     expect(issues.length).to.equal(0);
   });
-
-/* todo, the parser finds this to be a FieldChain
-  it("test 2", function () {
-    const abap = "WRITE TEXT-003.";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0]);
-    expect(issues.length).to.equal(1);
-  });
-*/
-
-  it("test 3", () => {
-    const abap = "WRITE TEXT-001.";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(0);
-  });
-
-  it("test 4", () => {
-    const abap = "WRITE TEXT-ABC.";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(0);
-  });
-
-  it("test 4, lower case", () => {
-    const abap = "WRITE text-abc.";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(0);
-  });
-
-  it("test 5", () => {
-    const abap = "WRITE 'sdfsd'(003).";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(1);
-  });
-
-  it("test 6", () => {
-    const abap = "WRITE 'hello world 1'(001).";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(0);
-  });
-
-  it("test 7", () => {
-    const abap = "WRITE 'something else'(001).";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(1);
-  });
-
-  it("test 8", () => {
-    const abap = "WRITE `something else`(001).";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(1);
-  });
-
-  it("test 9", () => {
-    const abap = "WRITE '''Editor Lock'' is set.'(111).";
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(0);
-  });
-
-  it("test 10", () => {
-    const abap = `
-SELECTION-SCREEN BEGIN OF BLOCK cls WITH FRAME TITLE text-abc.
-SELECTION-SCREEN END OF BLOCK cls.
-    `;
-    const reg = new Registry();
-    reg.addFile(new MemoryFile("zfoobar.prog.abap", abap));
-    reg.addFile(new MemoryFile("zfoobar.prog.xml", xml));
-    reg.parse();
-    const issues = new CheckTextElements().run(reg.getObjects()[0], reg);
-    expect(issues.length).to.equal(0);
-  });
-
 });
